@@ -12,33 +12,37 @@ class BST:
     def __init__(self):
         self.root = None
 
-    def insert(self, key):
+    def insert(self, key): #INSERTS A NEW VALUE INTO THE BST USING ITERATIVE APPROACH
+        """ Iterative insert to prevent recursion depth issues """
+        new_node = TreeNode(key)
         if self.root is None:
-            self.root = TreeNode(key)
-        else:
-            self._insert_recursive(self.root, key)
-
-    def _insert_recursive(self, node, key):
-        if key < node.key:
-            if node.left is None:
-                node.left = TreeNode(key)
+            self.root = new_node
+            return
+        
+        current = self.root
+        while True:
+            if key < current.key:
+                if current.left is None:
+                    current.left = new_node
+                    break
+                current = current.left
             else:
-                self._insert_recursive(node.left, key)
-        else:
-            if node.right is None:
-                node.right = TreeNode(key)
+                if current.right is None:
+                    current.right = new_node
+                    break
+                current = current.right
+
+    def search(self, key): #FINDS A KEY IN THE BST
+        """ Iterative search for efficiency """
+        current = self.root
+        while current:
+            if key == current.key:
+                return current
+            elif key < current.key:
+                current = current.left
             else:
-                self._insert_recursive(node.right, key)
-
-    def search(self, key):
-        return self._search_recursive(self.root, key)
-
-    def _search_recursive(self, node, key):
-        if node is None or node.key == key:
-            return node
-        if key < node.key:
-            return self._search_recursive(node.left, key)
-        return self._search_recursive(node.right, key)
+                current = current.right
+        return None
 
 ''' question 2 : Measure search performance using timeit as follows: [0.3 pts]
 1. Generate a 10000-element sorted vector and use it to build a tree by inserting
@@ -47,6 +51,7 @@ each element
 element), and return average and total time '''
 
 def measure_search_time(bst, values):
+    """ Measure search time for all elements, averaged across 10 tries """
     total_time = 0
     for key in values:
         total_time += timeit.timeit(lambda: bst.search(key), number=10)
@@ -56,7 +61,7 @@ def measure_search_time(bst, values):
 # Create a sorted vector
 sorted_vector = list(range(10000))
 
-# Build BST from sorted vector
+# Build BST (linked list) from sorted vector => unbalanced
 bst_sorted = BST()
 for num in sorted_vector:
     bst_sorted.insert(num)
@@ -76,7 +81,7 @@ element), and return average and total time '''
 # Shuffle the vector
 random.shuffle(sorted_vector)
 
-# Build BST from shuffled vector
+# Build BST from shuffled vector => balanced
 bst_shuffled = BST()
 for num in sorted_vector:
     bst_shuffled.insert(num)
@@ -89,9 +94,11 @@ print(f"Shuffled Insertion BST - Total Search Time: {total_time_shuffled:.6f} se
 
 
 #question 4. Discuss the results. Which approach is faster? Why? [0.2 pts]
-''' When inserting elements in sorted order, the BST becomes highly unbalanced, resembling a linked list 
+''' 
+When inserting elements in sorted order, the BST becomes highly unbalanced, resembling a linked list 
 where each node only has a right child. This results in search operations having a time complexity of O(n), 
 making them significantly slower. On the other hand, when the elements are inserted in a shuffled order, 
 the BST is more balanced, leading to an average search time complexity of O(log n). Consequently, searches 
 in the shuffled BST are much faster compared to the sorted-insertion BST. The results clearly demonstrate 
-that balanced trees perform better in search operations, highlighting the importance of maintaining balance in BSTs. '''
+that balanced trees perform better in search operations, highlighting the importance of maintaining balance in BSTs. 
+'''
